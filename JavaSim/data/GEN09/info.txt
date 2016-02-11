@@ -1,0 +1,4 @@
+Generated city: 33 x 33 - some of them
+Segment length:    47
+
+Colission free crossings

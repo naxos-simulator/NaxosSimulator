@@ -1,0 +1,4 @@
+Generated city: 6 x 6
+Segment length:      200
+U-Turns allowed 
+To be used with cell size 0.7

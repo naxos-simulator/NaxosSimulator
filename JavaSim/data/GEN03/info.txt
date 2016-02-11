@@ -1,0 +1,3 @@
+Generated city: 10 x 10
+Segment length:    10
+Map segments visualization added

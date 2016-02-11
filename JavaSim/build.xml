@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="makejar" name="JavaSim">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="JavaSim.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/log4j-1.2.15.jar"/>
+        <pathelement location="lib/json-lib-2.4-jdk15.jar"/>
+        <pathelement location="jcuda/0.4.1/linux-x86_64/jcuda-0.4.1.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    	<delete file="dist/JavaSim.jar"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="JavaSim.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+	 <target name ="makejar" description="Create a jar for the project" depends="clean,build">
+	 	<mkdir dir="dist"/>
+	    <jar jarfile="dist/JavaSim.jar" includes="**/*.*" basedir="bin"/>
+	 </target>
+</project>

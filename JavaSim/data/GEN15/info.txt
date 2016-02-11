@@ -1,0 +1,3 @@
+10 x 10
+Segment length:    200
+U-Turns allowed
