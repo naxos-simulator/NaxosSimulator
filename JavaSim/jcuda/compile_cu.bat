@@ -1,0 +1,1 @@
+nvcc -ptx Rule184.cu -o Rule184.ptx
