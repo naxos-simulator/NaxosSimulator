@@ -1,0 +1,281 @@
+#Command line (in JavaSim directory), after calling ant; calls 200 simulations:
+#
+
+#---- PART 1 cut from here 
+
+#!/bin/bash
+for i in `seq 1 200`; do
+    echo $i
+    java -Xmx512m -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar:lib/json-lib-2.4-jdk15.jar de.tzi.scenarios.Scenario02 0.05 0.25 1 GEN13 1000000 > /tmp/Scenario02_rho0_25smart_05_1trial_GEN13_1000000_14-$i.txt
+    sleep 1
+done
+   
+#----- PART 1 
+
+
+#---- PART 2 cut here (c.sh)
+
+#!/bin/bash
+echo "tdcrNmS_CO2R <- matrix(ncol=200, nrow=39)" > H.txt
+for i in `seq 1 200`; do
+	echo $i
+grep "tdcrNmS_CO2R.,1."  /tmp/Scenario02_rho0_25smart_05_1trial_GEN13_1000000_14-$i.txt | sed "s/tdcrNmS_CO2R.,1./tdcrNmS_CO2R\[,$i\]/" >> H.txt
+	
+done
+
+
+#---- PART 2 up to here 
+
+
+#---- PART 3 cut from here: (d.sh)
+
+#!/bin/sh
+echo "trial, tns, dns, cns, rns, tnsR, dnsR, cnsR, rnsR, totalCompared, normalCount, smartCount, removedVehiclesCount, totalCO2N, totalCO2S, totalTripsN ,totalTripsS, totalTimeN, totalTimeS, totalDistanceN, totalDistanceS, totalCO2N14, totalCO2S14, totalTripsN14, totalTripsS14, totalTimeN14, totalTimeS14, totalDistanceN14, totalDistanceS14, normalCount14, smartCount14, tns14, dns14, cns14, rns14, tnsR14, dnsR14, cnsR14, rnsR14, totalCompared14 " > H.csv
+sed -e "s/)//" -e "s/\] <- c(/, /" -e "s/tdcrNmS_CO2R..//" -e "s/,\] <- c./,/" H.txt >> H.csv
+#----- PART 3 up to here 
+
+
+        
+
+#R - render simulation results
+#Two passes are advised: the first one with max_c, max_t, max_d, and max_r set to zero AND findMax = TRUE
+#The second one with findMax = FALSE and appropriate values of max_* set
+
+pathPrefix = "/tmp/Scenario02_rho0_25smart_05_1trial_GEN13_1000000_14-"
+outputPrefix = "/tmp/Scenario02-Smart-Multiple_1Mx200_"
+
+
+cex = 0.01
+scale = 0.8
+
+cex = 0.1
+scale = 1
+
+cex = 0.3
+scale = 0.8
+
+cl = rgb(0,0,0,0.01)
+ltS = ltN = 1
+clS = clN = cl
+
+merge = TRUE
+findMax = !FALSE
+
+skipReading = !TRUE
+showLegend = TRUE
+
+gType = "p"
+
+par(mgp = c(2.5, 1, 0))
+
+start = 1
+stop = 200
+
+
+max_c = 5230851
+max_t = 190265.2188
+max_d = 1916
+max_r = 445.5
+
+max_c = 0
+max_t = 0
+max_d = 0
+max_r = 0
+
+
+if (findMax) {
+	for (i in start:stop) {
+		f = paste(pathPrefix,i,".txt", sep="")
+		if (!skipReading) {
+			source(f)
+		}
+		max_t = max(max_t, max(S_t_normal, na.rm=TRUE), max(S_t_smart, na.rm=TRUE))
+		max_c = max(max_c, max(S_c_normal, na.rm=TRUE), max(S_c_smart, na.rm=TRUE))
+		max_d = max(max_d, max(S_d_normal, na.rm=TRUE), max(S_d_smart, na.rm=TRUE))
+		max_r = max(max_r, max(S_r_normal, na.rm=TRUE), max(S_r_smart, na.rm=TRUE))
+		message("i ", i)
+		message("max_c ", max_c)
+		message("max_t ", max_t)
+		message("max_d ", max_d)
+		message("max_r ", max_r)
+	}
+}
+message("max_c = ", max_c)
+message("max_t = ", max_t)
+message("max_d = ", max_d)
+message("max_r = ", max_r)
+
+
+
+
+timeResolution = 21
+
+
+
+
+par(mgp = c(2.5, 1, 0))
+
+
+pch=18
+
+
+
+png(file = paste(outputPrefix, "TN.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devTN = dev.cur()
+png(file = paste(outputPrefix, "TS.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devTS = dev.cur()
+png(file = paste(outputPrefix, "CN.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devCN = dev.cur()
+png(file = paste(outputPrefix, "CS.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devCS = dev.cur()
+png(file = paste(outputPrefix, "DN.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devDN = dev.cur()
+png(file = paste(outputPrefix, "DS.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devDS = dev.cur()
+png(file = paste(outputPrefix, "RS.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devRS = dev.cur()
+png(file = paste(outputPrefix, "RN.png", sep=""), width=1400*scale, height=1400*scale, pointsize=30*scale)
+par(mgp = c(2.5, 1, 0))
+devRN = dev.cur()
+
+if (!skipReading) {
+	S_t_normal_h <- matrix(ncol=1, nrow=stop - start + 1)
+	S_t_smart_h <- matrix(ncol=1, nrow=stop - start + 1)
+	S_c_normal_h <- matrix(ncol=1, nrow=stop - start + 1)
+	S_c_smart_h <- matrix(ncol=1, nrow=stop - start + 1)
+	S_d_normal_h <- matrix(ncol=1, nrow=stop - start + 1)
+	S_d_smart_h <- matrix(ncol=1, nrow=stop - start + 1)
+	S_r_normal_h <- matrix(ncol=1, nrow=stop - start + 1)
+	S_r_smart_h <- matrix(ncol=1, nrow=stop - start + 1)
+}
+
+
+xlab = "Simulation time [computational time steps] x 1000"
+for (i in start:stop) {
+	f = paste(pathPrefix,i,".txt", sep="")
+    message(i, ": ", f)
+	if (!skipReading) {
+		source(f)
+	}
+        sq = seq(1, nrow(S_t_normal), 1000)
+	  if(i==start){
+	    dev.set(devTN)
+	    plot(S_t_normal[sq] / timeResolution,
+	    	type=gType, col=clN, cex=cex, ylim=c(0,max_t / timeResolution), pch=pch, xlab=xlab,
+	    	ylab =  expression(paste(S[t]^normal, " - trip travel time [time steps]")))
+	    dev.set(devTS)
+	    plot(S_t_smart[sq] / timeResolution,
+	    	type=gType,col=clS, cex=cex, ylim=c(0,max_t / timeResolution), pch=pch, xlab=xlab,
+	    	ylab =  expression(paste(S[t]^smart, " - trip travel time [time steps]")))
+	    dev.set(devCN)	
+		plot(S_c_normal[sq]/1000,
+			type=gType,col=clN, cex=cex, ylim=c(0,max_c/1000), pch=pch, xlab= xlab,
+			ylab = expression(paste(S[c]^normal, plain(" - "), CO[2], plain(" emission per trip [g]"))));
+	    dev.set(devCS)	
+		plot(S_c_smart[sq]/1000,
+			type=gType,col=clS, cex=cex, ylim=c(0,max_c/1000), pch=pch, xlab=xlab,
+			ylab = expression(paste(S[c]^smart, plain(" - "), CO[2], plain(" emission per trip [g]"))));
+	    dev.set(devDN)
+	    plot(S_d_normal[sq],
+	    	type=gType, col=clN, cex=cex, ylim=c(0,max_d), pch=pch, xlab=xlab,
+	    	ylab = expression(paste(S[d]^normal, plain(" - distance driven per trip [cells]")))); 
+	    dev.set(devDS)
+	    plot(S_d_smart[sq],
+	    	type=gType,col=clS, cex=cex, ylim=c(0,max_d), pch=pch, xlab=xlab,
+	    	ylab = expression(paste(S[d]^smart, plain(" - distance driven per trip [cells]")))); 
+	    dev.set(devRN)	
+		plot(S_r_normal[sq],
+			type=gType,col=clN, cex=cex, ylim=c(0,max_r), pch=pch, xlab= xlab,
+			ylab = "Trips completed by normal vehicles")
+	    dev.set(devRS)
+		plot(S_r_smart[sq],
+			type=gType,col=clS, cex=cex, ylim=c(0,max_r), pch=pch, xlab=xlab,
+			ylab = "Trips completed by smart vehicles")
+	  } else { 
+		dev.set(devTN)
+	    lines(S_t_normal[sq] / timeResolution, type=gType,col=clN, cex=cex, pch=pch)
+	    dev.set(devTS)
+		lines(S_t_smart[sq] / timeResolution, type=gType,col=clS, cex=cex, pch=pch)
+		dev.set(devCN)
+	    lines(S_c_normal[sq]/1000, type=gType,col=clN, cex=cex, pch=pch)
+	    dev.set(devCS)
+		lines(S_c_smart[sq]/1000, type=gType,col=clS, cex=cex, pch=pch)
+		dev.set(devDN)
+	    lines(S_d_normal[sq], type=gType,col=clN, cex=cex, pch=pch)
+	    dev.set(devDS)
+		lines(S_d_smart[sq], type=gType,col=clS, cex=cex, pch=pch)
+		dev.set(devRN)
+	    lines(S_r_normal[sq], type=gType,col=clN, cex=cex, pch=pch)
+	    dev.set(devRS)
+		lines(S_r_smart[sq], type=gType,col=clS, cex=cex, pch=pch)
+	  }
+	  if (!skipReading) {
+		#Histograms (final values)
+		S_t_normal_h[i] =  S_t_normal[nrow(S_t_normal)] / timeResolution
+		S_t_smart_h[i] = S_t_smart[nrow(S_t_smart)] / timeResolution
+		S_c_normal_h[i] = S_c_normal[nrow(S_c_normal)]
+		S_c_smart_h[i] = S_c_smart[nrow(S_c_smart)]
+		S_d_normal_h[i] = S_d_normal[nrow(S_d_normal)]
+		S_d_smart_h[i] = S_d_smart[nrow(S_d_smart)]
+		S_r_normal_h[i] = S_r_normal[nrow(S_r_normal)]
+		S_r_smart_h[i] = S_r_smart[nrow(S_r_smart)]
+	}
+}
+dev.off(devTN)
+dev.off(devTS)
+dev.off(devCN)
+dev.off(devCS)
+dev.off(devDN)
+dev.off(devDS)
+dev.off(devRN)
+dev.off(devRS)
+
+
+
+
+
+
+
+
+
+
+
+#
+# Histograms x2
+#
+# Histograms
+
+pdf(file = "/tmp/Scenario02-Smart-Histograms-200-TC.pdf", paper="special", width=7, height=7)#, pointsize=30)
+par(mfrow=c(2,2));
+cl = rgb(0.15, 0.15, 0.15, 1/6)
+hist(S_t_normal_h, xlab="Trip travel time [time steps]", main=expression(paste("Histogram of ", S[t]^normal, sep="")), col=cl)
+hist(S_t_smart_h, xlab="Trip travel time [time steps]", main=expression(paste("Histogram of ", S[t]^smart, sep="")), col=cl)
+hist(S_c_normal_h/1000, xlab=expression(paste(CO[2], plain(" emission per trip [g]"))), main=expression(paste("Histogram of ", S[c]^normal, sep="")), col=cl)
+hist(S_c_smart_h/1000, xlab=expression(paste(CO[2], plain(" emission per trip [g]"))), main=expression(paste("Histogram of ", S[c]^smart, sep="")), col=cl)
+par(mfrow=c(1,1));
+dev.off()
+
+pdf(file = "/tmp/Scenario02-Smart-Histograms-200-DR.pdf", paper="special", width=7, height=7)#, pointsize=30)
+par(mfrow=c(2,2));
+cl = rgb(0.15, 0.15, 0.15, 1/6)
+hist(S_d_normal_h, xlab="Distance driven per trip [cells]", main=expression(paste("Histogram of ", S[d]^normal, sep="")), col=cl)
+hist(S_d_smart_h, xlab="Distance driven per trip [cells]", main=expression(paste("Histogram of ", S[d]^smart, sep="")), col=cl)
+hist(S_r_normal_h, xlab="Trips completed", font.main = 1, main=paste("Histogram of number of trips \n completed by the normal vehicles"), col=cl)
+hist(S_r_smart_h, xlab="Trips completed", font.main = 1, main=paste("Histogram of number of trips \n completed by the smart vehicles"), col=cl)
+par(mfrow=c(1,1));
+dev.off()
+
+
+
+#source("/tmp/H.txt")
+#Table 1.12:
+#a=31
+#message(paste(format(round(mean(sort(tdcrNmS_CO2R[a,]))),digits=20, big.mark=" "), "&",format(round(sd(sort(tdcrNmS_CO2R[a,]))),digits=20, big.mark=" "),"&",format(round(median(sort(tdcrNmS_CO2R[a,]))),digits=20, big.mark=" ")))
+

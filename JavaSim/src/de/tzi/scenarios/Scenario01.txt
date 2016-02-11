@@ -1,0 +1,249 @@
+#Command line (in JavaSim directory), after calling ant; Simulation:
+#java -Xmx512m -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar:lib/json-lib-2.4-jdk15.jar de.tzi.scenarios.Scenario01 0.25 0.05 1 GEN13 1000000 > /tmp/Scenario01_rho0_25smart0_5_1trial_GEN13_1000000_14.txt
+
+#R - load simulation results
+#source("/tmp/Scenario01_rho0_25smart0_5_1trial_GEN13_1000000_14.txt");
+
+
+#The rest of the file should be copied into R:
+
+par(mfrow=c(1,1));
+
+max = 1#2000
+cex = 0.1
+
+cl = rgb(0,0,0,0.2)
+
+cl = rgb(0,0,0)
+
+lwdS=1
+lwdN=1
+
+
+clS = rgb(1,0,0,0.01)
+ltS=1
+
+clN = rgb(0,0,1,0.01)
+ltN=2
+
+merge = TRUE
+
+gType = "p"
+
+legendPos = 0.56
+
+par(mgp = c(2.5, 1, 0))
+
+#	final static byte MAX_SPEED = 12;
+#	public int getTimeResolution() {
+#		return advances[MAX_SPEED];
+#	}
+#	static int[] cellR184 = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+#	static int[] cell07 = { 0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 19, 21 };
+#	static int[] cell29 = { 0, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5 };
+#	static int[] advances = cell07;
+
+
+timeResolution = 21
+
+
+
+
+png(file = "/tmp/Scenario01-Smart-Single-T-1M.png", width=1400, height=1400, pointsize=30)
+
+for(i in 1:max){
+  if(i==1){
+    plot(S_t_normal[,1] / timeResolution,type=gType,col=clN, lwd=lwdN, cex=cex,  ylab = 
+    #expression(S[t]^{normal}), 
+    "Trip travel time [time steps]",    
+    xlab="Simulation time [computational time steps]", ylim=c(0,max(max(S_t_normal, na.rm=TRUE), max(S_t_smart, na.rm=TRUE)) / timeResolution), lty=ltN);
+  } else { 
+	lines(S_t_normal[,i] / timeResolution,type=gType,col=clN, lwd=lwdN, cex=cex, lty=ltN)
+  }
+}
+
+for(i in 1:max){
+  if(!merge && i==1){
+    plot(S_t_smart[,1] / timeResolution,type=gType, lwd=lwdS, col=clS, cex=cex,  ylab = expression(S[t]^{smart}), xlab="Time step", ylim=c(0,max(max(S_t_normal, na.rm=TRUE), max(S_t_smart, na.rm=TRUE)) / timeResolution), lty=ltS);
+  } else { 
+	lines(S_t_smart[,i] / timeResolution,type=gType, lwd=lwdS, col=clS, cex=cex, lty=ltS)
+  }
+}
+
+
+clS = rgb(1,0,0)
+clN = rgb(0,0,1)
+ltS=1
+ltN=1
+
+legend(length(S_t_normal)*0.78, max(max(S_t_normal, na.rm=TRUE), max(S_t_smart, na.rm=TRUE) ) / timeResolution * legendPos,
+ 
+c(expression(S[t]^{normal}),expression(S[t]^{smart})), 
+lty=c(ltN,ltS),
+lwd=c(lwdN,lwdS),
+col=c(clN,clS))
+
+dev.off()
+
+
+png(file = "/tmp/Scenario01-Smart-Single-C-1M.png", width=1400, height=1400, pointsize=30)
+
+clS = rgb(1,0,0,0.01)
+ltS=1
+
+clN = rgb(0,0,1,0.01)
+ltN=1
+
+
+labName <- c('emission per trip [g]')
+
+for(i in 1:max){
+  if(i==1){
+    plot(S_c_normal[,1]/1000, type=gType, col=clN, lwd=lwdN, cex=cex,  ylab =
+    expression(paste(CO[2], plain(" emission per trip [g]"))),
+#    bquote(CO[2] ~ .(labName[1])), 	
+#	expression(paste(CO[2], labName[1])),
+#	c(expression(CO[2]), "emission"),
+    #expression(S[c]^{normal}), 
+    xlab="Simulation time [computational time steps]", ylim=c(0,max(max(S_c_normal, na.rm=TRUE), max(S_c_smart, na.rm=TRUE))/1000), lty=ltN);
+  } else { 
+	lines(S_c_normal[,i]/1000,type=gType,col=clN, lwd=lwdN, cex=cex, lty=ltN)
+  }
+}
+
+for(i in 1:max){
+  if(!merge && i==1){
+    plot(S_c_smart[,1]/1000,type=gType,col=clS, lwd=lwdS, cex=cex,  ylab = expression(S[c]^{smart}), xlab="Time step [x1000]", ylim=c(0,max(max(S_c_normal, na.rm=TRUE), max(S_c_smart, na.rm=TRUE))/1000), lty=ltS);
+  } else { 
+	lines(S_c_smart[,i]/1000,type=gType,col=clS, lwd=lwdS, cex=cex, lty=ltS)
+  }
+}
+clS = rgb(1,0,0)
+clN = rgb(0,0,1)
+ltS=1
+ltN=1
+
+
+
+
+legend(length(S_c_normal)*0.78, max(max(S_c_normal, na.rm=TRUE), max(S_c_smart, na.rm=TRUE)) * (legendPos / 1000), 
+c(expression(S[c]^{normal}),expression(S[c]^{smart})), 
+lty=c(ltN,ltS),
+lwd=c(lwdN,lwdS),
+col=c(clN,clS))
+
+
+
+dev.off()
+
+
+
+
+
+
+
+
+
+png(file = "/tmp/Scenario01-Smart-Single-D-1M.png", width=1400, height=1400, pointsize=30)
+
+
+
+clS = rgb(1,0,0,0.01)
+ltS=1
+
+clN = rgb(0,0,1,0.01)
+ltN=1
+
+
+
+for(i in 1:max){
+  if(i==1){
+    plot(S_d_normal[,1],type=gType,col=clN, lwd=lwdN, cex=cex,  ylab ="Distance driven per trip [cells]",
+    xlab="Simulation time [computational time steps]", ylim=c(0,max(max(S_d_normal, na.rm=TRUE), max(S_d_smart, na.rm=TRUE))), lty=ltN);
+  } else { 
+	lines(S_d_normal[,i],type=gType,col=clN, lwd=lwdN, cex=cex, lty=ltN)
+  }
+}
+
+for(i in 1:max){
+  if(!merge && i==1){
+    plot(S_d_smart[,1],type=gType,col=clS, cex=cex, lwd=lwdS,  ylab = expression(S[d]^{smart}), xlab="Time step", ylim=c(0,max(max(S_d_normal, na.rm=TRUE), max(S_d_smart, na.rm=TRUE))), lty=ltS);
+  } else { 
+	lines(S_d_smart[,i],type=gType,col=clS, cex=cex, lwd=lwdS, lty=ltS)
+  }
+}
+
+clS = rgb(1,0,0)
+clN = rgb(0,0,1)
+ltS=1
+ltN=1
+
+
+
+legend(length(S_d_normal)*0.78, max(max(S_d_normal, na.rm=TRUE), max(S_d_smart, na.rm=TRUE) )* legendPos,
+c(expression(S[d]^{normal}),expression(S[d]^{smart})), 
+lty=c(ltN,ltS),
+lwd=c(lwdN,lwdS),
+col=c(clN,clS))
+
+
+
+dev.off()
+
+
+
+
+
+
+
+
+png(file = "/tmp/Scenario01-Smart-Single-R-1M.png", width=1400, height=1400, pointsize=30)
+
+clS = rgb(1,0,0,0.01)
+ltS=1
+
+clN = rgb(0,0,1,0.01)
+ltN=1
+
+labName <- c('emission per trip [g]')
+
+for(i in 1:max){
+  if(i==1){
+    plot(S_r_normal[,1], type=gType, lwd=lwdN, col=clN, cex=cex,  ylab =
+    "Trips completed per vehicle",
+    xlab="Simulation time [computational time steps]", ylim=c(0,max(max(S_r_normal, na.rm=TRUE), max(S_r_smart, na.rm=TRUE))), lty=ltN);
+  } else { 
+	lines(S_r_normal[,i],type=gType,col=clN, lwd=lwdN, cex=cex, lty=ltN)
+  }
+}
+
+for(i in 1:max){
+  if(!merge && i==1){
+    plot(S_r_smart[,1],type=gType,col=clS, cex=cex,  lwd=lwdS, ylab = expression(S[r]^{smart}), xlab="Time step [x1000]", ylim=c(0,max(max(S_r_normal, na.rm=TRUE), max(S_r_smart, na.rm=TRUE))), lty=ltS);
+  } else { 
+	lines(S_r_smart[,i],type=gType,col=clS, cex=cex, lwd=lwdS, lty=ltS)
+  }
+}
+clS = rgb(1,0,0)
+clN = rgb(0,0,1)
+ltS=1
+ltN=1
+
+
+
+
+legend(length(S_r_normal)*0.78, max(max(S_r_normal, na.rm=TRUE), max(S_r_smart, na.rm=TRUE)) * legendPos, 
+c(expression(S[r]^{normal}),expression(S[r]^{smart})), 
+lty=c(ltN,ltS),
+lwd=c(lwdN,lwdS),
+col=c(clN,clS))
+
+
+
+dev.off()
+
+
+
+
+
+

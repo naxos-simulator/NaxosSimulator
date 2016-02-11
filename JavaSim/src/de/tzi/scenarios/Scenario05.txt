@@ -1,0 +1,458 @@
+#See scenario 04 for CO2 emission per trip, so run it first to set up variables properly
+
+
+
+# CUT HERE - THE SAME AS IN Scenario 04
+
+
+
+
+
+#Run www.mapaswiatel.pl/tzi/X
+
+#----------- cut from here 
+
+#!/bin/bash
+#1 500
+for i in `seq 458 458`
+do
+	echo $i
+	curl -J -O http://mapaswiatel.pl/tzi/D/$i	
+done
+
+   
+#----------- up to here 
+
+
+#
+# Plots for rho = 0.25, smart = 0.05,...,0.95
+#
+#Circle
+map = "GEN13"
+version = "16"
+
+
+#Manhattan uniform
+#map = "GEN16"
+#version = "13"
+
+#
+# Probability x 2
+#map = "GEN16"
+#
+#version = "14"
+start = 1
+stop = 19
+
+#inputPrefix = "/Users/m/Downloads/Naxos/"
+
+inputPrefix = "/tmp/"
+outputPrefix = "/tmp/14"
+maxSN = 0
+findMax = T
+scale = 1
+
+#
+#---------> CHANGE HERE: Scenario 05
+#
+#
+# All
+co2Idx = 13
+tripCnt = 15
+genPrefix = "A"
+
+#
+#---------> CHANGE HERE: Scenario 04
+#
+#1-4
+#co2Idx = 21
+#tripCnt = 23
+#genPrefix = "2"
+
+overall=!TRUE
+
+rhoStart=1
+rhoStop=19
+
+stacked <- matrix(nrow=2, ncol=stop-start+1)
+label <- matrix(nrow=1, ncol=stop-start+1)
+sum <- matrix(ncol=1, nrow=stop-start+1)
+
+findMax = TRUE
+
+noStart=1
+noStop=1		
+
+#fixedRho = 5
+#rhoStart=rhoStop=fixedRho
+
+
+cN=array(dim=c(stop-start+1,rhoStop-rhoStart+1))
+cS=array(dim=c(stop-start+1,rhoStop-rhoStart+1))
+cM=array(dim=c(stop-start+1,rhoStop-rhoStart+1))
+
+rN=array(dim=c(stop-start+1,rhoStop-rhoStart+1))
+rS=array(dim=c(stop-start+1,rhoStop-rhoStart+1))
+
+
+fillCOnly = FALSE
+
+plotDist = !TRUE
+
+
+require(fitdistrplus)
+maxSN = 0
+if (findMax) {
+		
+for (j in rhoStart:rhoStop) {
+
+	filesReadRho = 0
+	for (i in start:stop) {
+		rho = formatC(j*5, width=3, format="d", flag="0")
+		smart = formatC(i*5, width=3, format="d", flag="0")
+		S = c()
+		N = c()
+		tripsS = c()
+		tripsN = c()
+		
+		mS = NA
+		mN = NA
+		rSij = NA
+		rNij = NA
+
+		filesRead = 0
+		for (no in noStart:noStop) {
+			f = paste(inputPrefix, "Naxos-Sim-",map,"-rho_", rho, "-smart_",smart,"-ver_",version,"-no_",no,".txt", sep="")
+			message(f)
+			mS = NA
+			mN = NA
+			rSij = NA
+			rNij = NA
+			
+			tdcrNmS_CO2R = NA
+			if (file.exists(f)) {
+				source(f)
+				if (length(tdcrNmS_CO2R) > 1) {
+					filesRead = filesRead + 1
+					filesReadRho = filesReadRho + 1
+					
+					for (k in 1:length(tdcrNmS_CO2R[1,])) {
+						v = (tdcrNmS_CO2R[co2Idx,k] * tdcrNmS_CO2R[tripCnt,k] *
+							tdcrNmS_CO2R[co2Idx+1,k] * tdcrNmS_CO2R[tripCnt+1,k]);
+							
+						if (is.na(v) || v == 0) {
+							tdcrNmS_CO2R[,k] = NA
+						}
+					}
+					
+					S = sort(c(S, sort(tdcrNmS_CO2R[co2Idx + 1,]/tdcrNmS_CO2R[tripCnt + 1,])/1000))
+					N = sort(c(N, sort(tdcrNmS_CO2R[co2Idx,]/tdcrNmS_CO2R[tripCnt,])/1000))
+					
+					tripsS = sort(c(tripsS, sort(tdcrNmS_CO2R[tripCnt + 1,])))
+					tripsN = sort(c(tripsN, sort(tdcrNmS_CO2R[tripCnt + 0,])))
+					rSij = median(tripsS)
+					rNij = median(tripsN)
+					M = S+N
+					mS = median(S)
+					mN = median(N)
+					maxSN = max(maxSN, max(M, max(N, S)))
+					
+					if (filesRead > 0) {
+						Sdist = fitdist(S,"norm", method="mme") 
+						Smean = Sdist$estimate[1]
+						Ndist = fitdist(N,"norm", method="mme")
+						Nmean = Ndist$estimate[1]
+						mS = Smean
+						mN = Nmean
+					}
+				}
+			}
+
+			if (!file.exists(f) || length(tdcrNmS_CO2R) <= 1) {
+				message("NOT EXISTS!")
+				mS = NA
+				mN = NA
+				rSij = NA
+				rNij = NA
+			}
+		}	
+				
+			#if (j == rhoStart) {
+				stacked[1,i] = mS
+				stacked[2,i] = mN
+				label[i] = i*5 / 100 
+				sum[i] = mS + mN
+			#}
+			
+			cN[i,j] = mN
+			cS[i,j] = mS
+			cM[i,j] = mN + mS
+			rN[i,j] = rNij
+			rS[i,j] = rSij
+	
+			#message("maxSM = ", maxSN)
+				
+		if (plotDist && filesRead > 0) {
+		
+				Sdist = fitdist(S,"norm", method="mme") 
+				Smean = Sdist$estimate[1]
+				Ndist = fitdist(N,"norm", method="mme")
+				Nmean = Ndist$estimate[1]
+				
+				pdf(file = paste(outputPrefix, "Naxos-Sim-M-",map,"-rho_", rho, "-ver_",version, "-smart_",smart,"-N.pdf", sep=""))
+				plot(Ndist);
+				dev.off()
+				
+				
+				pdf(file = paste(outputPrefix, "Naxos-Sim-M-",map,"-rho_", rho, "-ver_",version, "-smart_",smart,"-S.pdf", sep=""))
+				plot(Sdist);
+				dev.off()
+				
+				message(paste("N_mean:",Nmean, "S_mean:",Smean))
+		}
+		}
+		
+		if (!fillCOnly) {
+		
+			if (overall) {
+				pdf(file = paste("/tmp/",genPrefix,"_Naxos-Sim-Overall-",map,"-ver_",version,"-rho_",rho,".pdf",sep=""), paper="special", width=11, height=7)#, pointsize=30)
+				#colnames(sum) <- label
+				
+				rho1 =  j * 5 / 100
+				main = bquote(list(rho==.(rho1)))
+				
+				barplot(main=main,sum, xlab="Smart vehicles fraction",
+				beside=TRUE,
+				xpd=FALSE,
+				ylab= expression(paste(CO[2], plain(" emission per trip [g]")))
+				)
+				title(main = list(main, font = 1))
+				
+				dev.off()
+			} else if (filesReadRho > 0) {
+				pdf(file = paste("/tmp/",genPrefix,"_Naxos-Sim-",map,"-ver_",version,"-rho_",rho,".pdf",sep=""), paper="special", width=11, height=7)#, pointsize=30)
+				colnames(stacked) <- label
+				
+				rho1 =  j * 5 / 100
+				main = bquote(list(rho==.(rho1)))
+				
+				barplot(main=main,stacked, xlab="Smart vehicles fraction",
+				beside=TRUE,
+				xpd=FALSE,
+				ylab= expression(paste(CO[2], plain(" emission per trip [g]"))),
+				#comment out line below to disable legend
+				legend = c("Smart vehicles emission","Normal vehicles emission")
+				)
+				title(main = list(main, font = 1))
+				
+				dev.off()
+			}
+			
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+######### CUT HERE
+
+
+
+
+require(lattice)
+require(grid)
+require(latticeExtra)
+s=cM
+s=cN
+cloud(s, panel.3d.cloud = panel.3dbars, zlim = 0:maxSN)
+
+
+
+
+#z=45, x = -75
+xStep=2
+yStep=2
+
+
+pdf(file = paste("/tmp/",genPrefix,"_14Naxos-Sim-CN.pdf",sep=""), paper="special", width=7, height=7)#, pointsize=30)
+
+s=cN
+title=expression(paste(CO[2], plain(" emission per trip of normal vehicles")))
+
+
+
+wireframe(s, scales =
+        list(arrows=FALSE, cex= 0.45, col = "black", font = 3, tck = 1,
+        #x=list(labels=c("A","B")),#labels=as.character((start:stop)*0.05)),
+        x=list(at=seq(start,stop,xStep), tck=1,labels=paste(formatC(seq(start,stop,xStep)*5, format="d"), "%", sep="")),
+        y=list(at=seq(rhoStart,rhoStop,yStep), tck=1,labels=paste(formatC(seq(rhoStart,rhoStop,yStep)*5, format="d"), "%", sep=""))),
+        xlim = start:stop,
+        screen = list(z = 45, x = -65),
+        colorkey = FALSE,
+        xlab = expression(paste(theta)),
+        ylab = expression(paste(rho)),#
+        zlab = list(label = expression(paste(CO[2], plain(" [g]"))), font = 3, cex = 0.8, las=3),
+        shade=TRUE,
+        pretty=TRUE,
+        light.source= c(0, 10, 10),
+        #zlim = 0:maxSN,
+        #main = title,
+        shade.colors = function(irr, ref,height, w = 0.4) grey(w*irr+(1-w)*(1 - (1 - ref)^0.4)),
+		aspect = c(1, 0.65),
+		panel = function(...)
+		    {
+		      panel.wireframe(...)
+		      grid.text(title, 0, 0.14, default.units = "native"
+		      #, gp = gpar(fontsize = 13)
+		      )
+		    }
+		)
+		
+dev.off()
+
+pdf(file = paste("/tmp/",genPrefix,"_14Naxos-Sim-CS.pdf",sep=""), paper="special", width=7, height=7)#, pointsize=30)
+
+s=cS
+
+title=expression(paste(CO[2], plain(" emission per trip of smart vehicles")))
+
+library(grid)
+
+wireframe(s, scales =
+        list(arrows=FALSE, cex= 0.45, col = "black", font = 3, tck = 1,
+        #x=list(labels=c("A","B")),#labels=as.character((start:stop)*0.05)),
+        x=list(at=seq(start,stop,xStep), tck=1,labels=paste(formatC(seq(start,stop,xStep)*5, format="d"), "%", sep="")),
+        y=list(at=seq(rhoStart,rhoStop,yStep), tck=1,labels=paste(formatC(seq(rhoStart,rhoStop,yStep)*5, format="d"), "%", sep=""))),
+        xlim = start:stop,
+        screen = list(z = 45, x = -65),
+        colorkey = FALSE,
+        xlab = expression(paste(theta)),
+        ylab = expression(paste(rho)),#
+        zlab = list(label = expression(paste(CO[2], plain(" [g]"))), font = 3, cex = 0.8, las=3),
+        shade=TRUE,
+        pretty=TRUE,
+        light.source= c(0, 10, 10),
+        #line=2,
+        #zlim = 0:maxSN,
+        #main = title,
+        shade.colors = function(irr, ref,height, w = 0.4) grey(w*irr+(1-w)*(1 - (1 - ref)^0.4)),
+		aspect = c(1, 0.65),
+		panel = function(...)
+		    {
+		      panel.wireframe(...)
+		      grid.text(title, 0, 0.14, default.units = "native"
+		      #, gp = gpar(fontsize = 13)
+		      )
+		    }
+		)
+		
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# Number of trips completed
+#
+
+
+
+pdf(file = paste("/tmp/",genPrefix,"_14Naxos-Sim-RN.pdf",sep=""), paper="special", width=7, height=7)#, pointsize=30)
+
+s=rN
+s[1,1]=NA
+title="Number of trips completed by the normal vehicles"
+
+
+
+wireframe(s, scales =
+        list(arrows=FALSE, cex= 0.45, col = "black", font = 3, tck = 1,
+        #x=list(labels=c("A","B")),#labels=as.character((start:stop)*0.05)),
+        x=list(at=seq(start,stop,xStep), tck=1,labels=paste(formatC(seq(start,stop,xStep)*5, format="d"), "%", sep="")),
+        y=list(at=seq(rhoStart,rhoStop,yStep), tck=1,labels=paste(formatC(seq(rhoStart,rhoStop,yStep)*5, format="d"), "%", sep=""))),
+        xlim = start:stop,
+        screen = list(z = 125, x = -65),
+        colorkey = FALSE,
+        xlab = expression(paste(theta)),
+        ylab = expression(paste(rho)),#
+        zlab = list(label = "# trips", font = 3, cex = 0.8, las=3),
+        shade=TRUE,
+        pretty=TRUE,
+        light.source= c(0, 10, 10),
+        #zlim = 0:maxSN,
+        #main = title,
+        shade.colors = function(irr, ref,height, w = 0.4) grey(w*irr+(1-w)*(1 - (1 - ref)^0.4)),
+		aspect = c(1, 0.65),
+		panel = function(...)
+		    {
+		      panel.wireframe(...)
+		      grid.text(title, 0, 0.14, default.units = "native"
+		      #, gp = gpar(fontsize = 13)
+		      )
+		    }
+		)
+
+		
+dev.off()
+
+pdf(file = paste("/tmp/",genPrefix,"_14Naxos-Sim-RS.pdf",sep=""), paper="special", width=7, height=7)#, pointsize=30)
+
+s=rS
+s[1,1]=NA
+title="Number of trips completed by the smart vehicles"
+
+library(grid)
+
+wireframe(s, scales =
+        list(arrows=FALSE, cex= 0.45, col = "black", font = 3, tck = 1,
+        #x=list(labels=c("A","B")),#labels=as.character((start:stop)*0.05)),
+        x=list(at=seq(start,stop,xStep), tck=1,labels=paste(formatC(seq(start,stop,xStep)*5, format="d"), "%", sep="")),
+        y=list(at=seq(rhoStart,rhoStop,yStep), tck=1,labels=paste(formatC(seq(rhoStart,rhoStop,yStep)*5, format="d"), "%", sep=""))),
+        xlim = start:stop,
+        screen = list(z = 125, x = -65),
+        colorkey = FALSE,
+        xlab = expression(paste(theta)),
+        ylab = expression(paste(rho)),#
+        zlab = list(label = "# trips", font = 3, cex = 0.8, las=3),
+        shade=TRUE,
+        pretty=TRUE,
+        light.source= c(0, 10, 10),
+        #line=2,
+        #zlim = 0:maxSN,
+        #main = title,
+        shade.colors = function(irr, ref,height, w = 0.4) grey(w*irr+(1-w)*(1 - (1 - ref)^0.4)),
+		aspect = c(1, 0.65),
+		panel = function(...)
+		    {
+		      panel.wireframe(...)
+		      grid.text(title, 0, 0.14, default.units = "native"
+		      #, gp = gpar(fontsize = 13)
+		      )
+		    }
+		)
+		
+dev.off()
+
+
+
+
+
+
+
+
+
+
