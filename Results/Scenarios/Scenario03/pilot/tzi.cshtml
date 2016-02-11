@@ -1,0 +1,346 @@
+@* 
+ * Created by Michal Markiewicz on 2011-11-12
+ * Copyright (c) 2011 Ariadna Sp. z o.o.
+ *@
+
+@using System.Net;
+@using System.Web.Routing;
+@using Microsoft.AspNet.SignalR;
+@using Microsoft.AspNet.SignalR.Hubs;
+@using System;
+@using System.IO;
+@using System.Text;
+
+
+@*
+ create table t_parameters(par_name nvarchar(50), par_value nvarchar(50));
+
+*@
+
+@functions{
+
+    public class Result
+    {
+        public int code {get; set;}
+        public string desc {get; set;}
+        public Task task {get; set;}
+
+        public Result() {
+            code = 0;
+            desc = "OK";
+        }
+
+        public Result(int code, string desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+    }
+
+    public class Task {
+        public int version {get; set;}
+        public double rho {get; set;}
+        public double smart {get; set;}
+        public int trials {get; set;}
+        public string map {get; set;}
+        public string cmd {get; set;}
+        public string jar {get; set;}
+        public int duration {get; set;}
+        public int length {get; set;}
+        public string result {get; set;}
+    }
+
+}
+
+@{
+    string[] allowedHosts = new string[] 
+    { 
+        "::1", "127.0.0.1", "192.168.1.73", "192.168.1.105", "192.168.1.104", "192.168.1.242", "149.156.65.239", "93.157.98.222", "89.167.12.177", "194.88.154.187", "192.168.1.110", "149.156.65.229", "129.33.193.254"
+    };
+
+    Boolean allowed = true;
+    foreach (string host in allowedHosts) 
+    {
+        allowed |= host == Request.UserHostAddress;
+    }
+    if (UrlData[0] == "Ariadna") {
+        Response.Write(UrlData[0]);
+        return;
+    }
+
+    int MAX_PROBES = 200;
+    int MAX_TIME = 1000000;
+    int MAX_COUNTER = 19;
+    int version = 16;
+    string map = "GEN13";
+    string JAR = HttpContext.Current.Request.Url.AbsoluteUri.Substring(0, 
+        HttpContext.Current.Request.Url.AbsoluteUri.LastIndexOf("/tzi")) + 
+        "/Temp/Remote"+version+".zip";
+    
+
+    Result result = null;
+    try {
+        String cmd = UrlData[0];
+        if (!allowed) {
+            result = new Result(401, "Host "+Request.UserHostAddress+" not authorized!");
+        } else {
+            if (cmd == "m" || cmd == "M") {
+                Database d1 = Database.Open("TZI");
+                int cnt;
+                var counter = d1.QuerySingle("SELECT par_value FROM t_parameters WHERE par_name = 'GET'");
+                if (counter == null) {
+                    d1.Execute("INSERT INTO t_parameters(par_name, par_value) VALUES ('GET', 0)");
+                    cnt = 0;
+                } else {
+                    cnt = Int32.Parse(counter.par_value);
+                }
+                d1.Execute("UPDATE t_parameters SET par_value = @0 WHERE par_name='GET'", cnt+1);
+                d1.Close();
+                if (cnt == 0) {
+                    string f = "MM-2014-11-05.pdf";//"KNX-UART-PCB.pdf";
+                    Response.Clear();
+                    Response.AddHeader("content-disposition", "attachment; filename="+f);
+                    Response.ContentType="application/pdf";
+                    //<text>@(new FileInfo(Server.MapPath("~/App_Data/"+f)).Length)</text>
+                    FileStream fs = new FileStream(Server.MapPath("~/App_Data/"+f), FileMode.Open, FileAccess.Read);
+                    int size;
+                    byte[] bytes = new byte[1024];
+                    while ((size = fs.Read(bytes, 0, bytes.Length)) > 0) {
+                        //<i>@size</i>
+                        Response.OutputStream.Write(bytes, 0, size);
+                    }
+                    fs.Close();
+                    Response.End();
+                } else {
+                    <text>No access</text>
+                }
+
+            } else if (cmd == "Q" && UrlData.Count > 2 && (UrlData[2] == "0" || UrlData[2] == "1")) {
+                Database d1 = Database.Open("TZI");
+                if (UrlData[2] == "0") {
+                    d1.Execute("UPDATE t_simulations SET sim_audit_rd  = NULL WHERE sim_id = @0", UrlData[1]);
+                } else {
+                    d1.Execute("UPDATE t_simulations SET sim_audit_rd  = GetDate() WHERE sim_id = @0", UrlData[1]);
+                }
+                d1.Close();
+            } else if (cmd == "B") {
+
+                if (UrlData.Count > 0) {
+                    try {
+                        version = Int32.Parse(UrlData[1]);
+                    } catch (Exception) {
+                            
+                    }
+                }
+                Database db1 = Database.Open("TZI");
+                <text>Map: @map, Version: @version</text>
+                <table>
+                @for (int rho = 0; rho <= MAX_COUNTER; rho++) {
+                    <tr><td>rho: @(rho*0.05)  </td>
+                    @for (int smart = 1; smart <= MAX_COUNTER; smart++) {
+                        if (rho == 0) {
+                            <td>@(smart*0.05)</td>
+                        } else {
+                        var r = db1.QuerySingle("SELECT COUNT(1) AS cnt  FROM t_simulations WHERE ROUND(sim_rho/0.05,0) = @0 AND ROUND(sim_smart/0.05,0) = @1 AND sim_map = @2 AND "+
+                        "sim_version = @3 AND sim_audit_rd IS NULL", rho , smart , map, version);
+                        if (r.cnt == 0) {
+                            <td style="background-color: red; color:yellow; text-align: center"><a style="color:yellow; text-decoration: none" href="@Href("/tzi/R",(rho-1) * MAX_COUNTER + (smart-1))">@(r == null ? "" : r.cnt)</a> </td>
+                        } else {
+                            <td style="background-color: white; color:grey;text-align:  center;">@(r == null ? "" : r.cnt)</td>
+                        }
+
+                    }
+                    }
+                    </tr>
+                }
+                </table>
+                db1.Close();
+            } else if (cmd == "F") {
+
+                Database d1 = Database.Open("TZI");
+                var t = d1.QuerySingle("SELECT par_value FROM  t_parameters  WHERE par_name='COUNTER'");
+                if(t==null) {<text>NULL</text>} else { <text>@t.par_value</text>}
+                //d1.Execute("UPDATE t_parameters SET par_value = @0 WHERE par_name='COUNTER'", 352);
+                //d1.Execute("ALTER TABLE t_simulations ADD COLUMN sim_audit_rd DATETIME");
+                d1.Close();
+
+            } else if (cmd == "R") {
+               
+                int probes = 0;
+                while (probes++ < MAX_PROBES) {
+                    int NO_DATA = -1;
+                    int cnt = NO_DATA;
+                    if (UrlData.Count > 1) {
+                        try {
+                            cnt = Int32.Parse(UrlData[1]);
+                        } catch (Exception) {
+                            
+                        }
+                    } 
+                    if (UrlData.Count > 2) {
+                         try {
+                            version = Int32.Parse(UrlData[2]);
+                        } catch (Exception) {
+                            
+                        }
+                    }
+                    if (cnt == NO_DATA) {
+                        Database d1 = Database.Open("TZI");
+                        var counter = d1.QuerySingle("SELECT par_value FROM t_parameters WHERE par_name = 'COUNTER'");
+                    
+                        if (counter == null) {
+                            d1.Execute("INSERT INTO t_parameters(par_name, par_value) VALUES ('COUNTER', 0)");
+                            cnt = 0;
+                        } else {
+                            cnt = Int32.Parse(counter.par_value);
+                            if (cnt >= MAX_COUNTER * MAX_COUNTER) {
+                                cnt = 0;
+                            }
+                            d1.Execute("UPDATE t_parameters SET par_value = @0 WHERE par_name='COUNTER'", cnt+1);
+                        }
+                        d1.Close();
+                    }
+                    //Random r = new Random();
+                    double rho = ((cnt / MAX_COUNTER) + 1) * 0.05;//Math.Max(5, (r.Next(5)*10+(r.NextDouble() > 0.5 ? 0 : 5))) / 100.0; 
+                    double smart = (cnt % MAX_COUNTER + 1) * 0.05;//Math.Max(5, r.Next(10)*10+(r.NextDouble() > 0.5 ? 0 : 5)) / 100.0;
+
+                    int trials = MAX_PROBES;
+                    if (version == 14) {
+                        trials = rho >= 0.5 ? 0 : MAX_PROBES;
+                    }
+                    int length = MAX_TIME;
+
+                    /*
+                    Database db = Database.Open("TZI");
+                    var sim_rho = db.QuerySingle("SELECT 1 FROM t_simulations WHERE sim_rho = @0 AND sim_smart = @1 AND sim_map = @2", rho, smart, map);
+                    db.Close();
+                    if (sim_rho == null || probes == MAX_PROBES - 2) {
+                    */
+                    {
+                        result = new Result();
+                        result.task = new Task();
+                        result.task.map = map;
+                        result.task.rho = rho;
+                        result.task.smart = smart;
+                        result.task.trials = trials;
+                        result.task.length = length;
+                        result.task.version = version;
+
+                        bool isMac = Request["os_name"]!= null && Request["os_name"].Contains("Mac");
+                        string cp = isMac ? "dist/JavaSim.jar:lib/log4j-1.2.15.jar" :
+                            "dist/JavaSim.jar;lib/log4j-1.2.15.jar";
+                        string p = result.task.smart.ToString(System.Globalization.CultureInfo.InvariantCulture)+ " " +
+                            result.task.rho.ToString(System.Globalization.CultureInfo.InvariantCulture)+ " " + 
+                            result.task.trials.ToString(System.Globalization.CultureInfo.InvariantCulture)+ " " + 
+                            result.task.map +  " " +
+                            result.task.length.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                        result.task.cmd = 
+                            //"ls -la";//
+                            "java -Duser.country=US -Duser.language=en -cp "+cp+" de.tzi.scenarios.Scenario " + p;
+                        //result.task.jar = HttpContext.Current.Request.Url.AbsoluteUri+"/../../Temp/AAA.zip";
+                        result.task.jar = JAR;
+                        break;
+                    }
+                }
+            } else if (cmd == "W") {
+                string json = Request.Form["t"];
+                try {
+                    Task t = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<Task>(json);
+                    if (t.version == null) {
+                        t.version = 2;
+                    }
+                    //if (t.version != version) {
+                    //    result = new Result(-2, "Wrong version, rejected");
+                    //} else {
+                        Database db = Database.Open("TZI");
+                        db.Execute("INSERT INTO t_simulations (sim_rho, sim_smart, sim_trials, sim_map, sim_results, sim_ip, sim_duration, sim_length, sim_version) "+
+                            "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8) ",
+                            t.rho, t.smart, t.trials, t.map, System.Text.Encoding.ASCII.GetBytes(t.result), Request.UserHostAddress, t.duration, t.length, t.version);
+                        db.Close();
+                        result = new Result(0, "Data successfully written!");
+                    //}
+                } catch (Exception e) {
+                    Log.Error(e);
+                    result = new Result(-1, e.ToString());
+                }
+            } else if (cmd =="G" && UrlData.Count > 1) {
+                Database db = Database.Open("TZI");   
+                var data = db.QuerySingle("SELECT sim_results FROM t_simulations WHERE sim_id = @0", UrlData[1]);
+               <pre>@System.Text.Encoding.ASCII.GetString(data.sim_results)</pre>
+               db.Close();
+            } else if (cmd =="D" && UrlData.Count > 1) {
+                Database db = Database.Open("TZI");   
+                var data = db.QuerySingle("SELECT * FROM t_simulations WHERE sim_id = @0", UrlData[1]);
+
+                if (data != null && data.sim_audit_rd != null) {
+                    Response.SetStatus(HttpStatusCode.Unused);
+                } else {
+                    var d2 = db.Query("SELECT sim_id FROM t_simulations WHERE sim_rho = @0 AND sim_smart = @1 "+
+                        "AND sim_version = @2 AND sim_map = @3 AND sim_audit_rd IS NULL ORDER BY sim_id", 
+                        data.sim_rho, data.sim_smart, data.sim_version, data.sim_map);
+                    int no = 1;
+                    foreach (var row in d2) {
+                        if (row.sim_id == data.sim_id) {
+                            break;
+                        }
+                        no++;
+                    }
+                    string fileName = String.Format("Naxos-Sim-{4}-rho_{0,3:D3}-smart_{1,3:D3}-ver_{2,0}-no_{3,0}.txt", 
+                    (int)(data.sim_rho * 100), (int)(data.sim_smart * 100), data.sim_version, no, data.sim_map);
+                    Response.AddHeader("content-disposition", "inline; filename=" + fileName);
+                    Response.ContentType = "plain/text";
+                    Response.BinaryWrite((byte[])data.sim_results);
+                }
+                db.Close();
+            } else if (cmd == "L") {
+                int max = 0;
+                int min = Int32.MaxValue;
+                Database db = Database.Open("TZI");
+                var rows = UrlData.Count <= 1 ?
+                    db.Query("SELECT * FROM t_simulations ORDER BY sim_version, sim_map, sim_rho, sim_smart") :
+                    db.Query("SELECT * FROM t_simulations WHERE sim_version = @0 ORDER BY sim_version, sim_map, sim_rho, sim_smart", UrlData[1]);
+                <table style="vertical-align: top;"><tbody>
+                    <tr><td>Rho</td><td>Smart</td><td>Trials</td><td>Length</td><td>Map</td><td>Time</td><td>Duration</td><td>IP</td><td>Results</td><td>Version</td><td>View</td><td>Download</td></tr>
+                @foreach (var row in rows) {
+                    max = Math.Max(max, row.sim_id);
+                    min = Math.Min(min, row.sim_id);
+                    <tr><td>@row.sim_rho</td><td>@row.sim_smart</td><td>@row.sim_trials</td><td>@row.sim_length</td><td>@row.sim_map</td>
+                        <td>@row.sim_audit_cd</td><td>@(row.sim_duration/60000)m</td><td>@row.sim_ip</td>
+                        <td>
+                            @row.sim_results.Length
+                        @*
+                            <pre>@System.Text.Encoding.ASCII.GetString(row.sim_results)</pre>
+                        *@
+                        </td>
+                        <td>@row.sim_version</td>
+                        <td><a href='@Href("~/tzi/G",row.sim_id)'>View:@row.sim_id</a></td>
+                        <td><a href='@Href("~/tzi/D",row.sim_id)'>File:@row.sim_id</a></td>
+                        <td><a href='@Href("~/tzi/Q/",row.sim_id,row.sim_audit_rd == null ? 1 : 0)'>@(row.sim_audit_rd == null ? "Remove" : "Restore")</a></td>
+                    </tr>
+                }
+                </tbody></table>
+                db.Close();
+                <text>Min id: @min, Max id: @max</text>
+
+            } else if (cmd == "X") {
+                bool isMac = Request.UserAgent != null && Request.UserAgent.Contains("Mac");
+                string cp = isMac ? 
+                    "dist/JavaSim.jar:lib/log4j-1.2.15.jar:lib/json-lib-2.4-jdk15.jar:lib/commons-lang-2.6.jar:lib/ezmorph-1.0.6.jar:lib/commons-logging-1.1.1.jar:lib/commons-collections-3.2.1.jar:lib/commons-beanutils-core-1.8.3.jar:lib/commons-beanutils-1.8.3.jar" :
+                    "dist/JavaSim.jar;lib/log4j-1.2.15.jar;lib/json-lib-2.4-jdk15.jar;lib/commons-lang-2.6.jar;lib/ezmorph-1.0.6.jar;lib/commons-logging-1.1.1.jar;lib/commons-collections-3.2.1.jar;lib/commons-beanutils-core-1.8.3.jar;lib/commons-beanutils-1.8.3.jar";
+                string c ="java -Xmx1024m -Duser.country=US -Duser.language=en -cp "+ cp +" de.tzi.remote.Pilot";
+                <text>@c<br/>&nbsp;<br/><a href="@JAR">@JAR</a></text>
+            }
+        }
+        if (result != null) {
+            Response.ContentType = "application/json";
+            Json.Write(result, Response.Output);
+            Response.StatusCode = 200;
+        } else {
+            Response.StatusCode = 200;
+        }
+        return;
+    } catch (Exception e) {
+        <i>@e.ToString()</i>
+        Log.Error(e);
+    }
+
+}
