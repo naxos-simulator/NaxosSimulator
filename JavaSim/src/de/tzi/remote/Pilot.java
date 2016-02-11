@@ -46,7 +46,7 @@ import net.sf.json.JSONObject;
  */
 public class Pilot {
 	
-	final static String BASE_URL = "http://mapaswiatel.pl";
+	final static String BASE_URL = "http://YOUR-IIS-SERWER-ADDRESS.pl";
 	
 	public static String FETCH_REQUEST_URL_EXT = "";
 	
