@@ -1,0 +1,14 @@
+MacOS: Postgres + PostGIS 
+--------------------------------
+
+brew update
+brew install postgres
+brew install postgis
+brew install --HEAD osm2pgsql
+
+#see: http://wiki.openstreetmap.org/wiki/Osm2pgsql
+ 
+pg_ctl -D /usr/local/var/postgres start
+initdb /usr/local/var/postgres
+
+psql -h localhost -d postgres

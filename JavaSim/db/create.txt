@@ -1,0 +1,18 @@
+CREATE USER gis WITH PASSWORD 'gis*2012';
+
+--DROP DATABASE gis;
+CREATE DATABASE gis OWNER gis;
+GRANT ALL PRIVILEGES ON DATABASE gis TO gis;
+
+\c gis
+
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+
+ALTER TABLE geometry_columns OWNER TO gis;
+ALTER TABLE spatial_ref_sys  OWNER TO gis;
+
+
+--Must be superuser to COPY to or from a file 
+ALTER USER gis SUPERUSER;
+
