@@ -92,7 +92,7 @@ The application settings are stored in the configuration file `simulation.proper
 | vehicle.icensePlate.ratio | Parameter that states the probability that the ve- hicle identity will be properly recognized at a crossing. |
 | vehicle.smart.r | The ratio of smart vehicles of type R, i.e. the vehicles that have access to dynamic route guidance system (DRGS) that provide up-to-date information about the quickest routes. The Smart-R vehicles are always choosing routes given by DRGS. |
 | vehicle.smart.s|  The ratio of smart vehicles of type S, i.e. the vehicles that addi- tionally have access to the information regarding expected time of changing traffic lights, so they could slow down a little bit before approaching the red light to eliminate the stop-and-go and smoothly accelerate, once the traffic light changes back to green. |
-| lights.sotl | Parameters d, r, e, u, m and threshold are specific for the Self-Organizing Traffic Lights algorithm. See [Hel09] for detailed explanation. |
+| lights.sotl | Parameters d, r, e, u, m and threshold are specific for the Self-Organizing Traffic Lights algorithm. |
 | lights.random.min | Minimum cycle length for random length traffic light controllers. |
 | lights.random.max | Maximum cycle length for random length traffic light controllers. |
 | lights.random.seed | Pseudorandom seed. If it is set to zero, then the default random seed will be taken, which is based on current time. |
