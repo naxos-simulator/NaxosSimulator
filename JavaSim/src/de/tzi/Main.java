@@ -55,7 +55,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		
 
-		/* Bigger cities use a lot of memory, so in n case of 
+		/* Bigger cities use a lot of memory, so in case of 
 		 * OutOfMemoryError: Java heap space please run with 
 		 * -Xmx512m -Xms512m
 		 */
