@@ -9,6 +9,7 @@ The main purpose of the Naxos traffic simulator is to perform computations relat
  * [Configuration](#configuration)
  * [Cities](#cities)
  * [Distributed computing](#distributed-computing)
+ * [Troubleshooting](#troubleshooting)
  
 ## Quick start
 
@@ -29,6 +30,19 @@ The main purpose of the Naxos traffic simulator is to perform computations relat
 | 5 | Shows the display settings| 
 | q | Quits the application| 
 
+### Command line
+
+To start simulation from command line, go to the the main directory where you exctractd the latest build and simply type:
+
+##### Windows
+```bash
+java -cp dist/JavaSim.jar;lib/log4j-1.2.15.jar de.tzi.Main
+```
+
+##### Unix/MacOS
+```bash
+java -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar de.tzi.Main
+```
 
 [Simulation](https://raw.githubusercontent.com/naxos-simulator/NaxosSimulator/master/Media/Cities/GEN02-small.png) "Simulation window"
 
@@ -99,8 +113,56 @@ The application settings are stored in the configuration file `simulation.proper
 | db.pass | Password encoded in Base64. |
 | interactive.mode|  If true shows the Graphical User Interface, otherwise the sim- ulator is run in a batch mode.| 
 
+#### Overriding configuration file
+
+You extract `simulator.properties` from the distribution archive and place it in the main directory. Feel free to change any settings you like. To make a use of it, place current directory (dot) in classpath:
+
+
+##### Windows
+```bash
+java -cp .;dist/JavaSim.jar;lib/log4j-1.2.15.jar de.tzi.Main
+```
+
+##### Unix/MacOS
+```bash
+java -cp .:dist/JavaSim.jar:lib/log4j-1.2.15.jar de.tzi.Main
+```
+
+
 ## Cities
 
 ## Distributed computing
 
 
+## Troubleshooting
+
+#### java.lang.NoClassDefFoundError: de/tzi/Main
+
+It means that you probably trying to run the simulator in a wrong directory. You should be in the directory where are `dist`, `lib` and other subdirectories were extracted from the distribution archive.
+
+
+#### java.lang.OutOfMemoryError: Java heap space
+
+```bash
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at de.tzi.traffic.navigation.Graph.<init>(Graph.java:58)
+	at de.tzi.traffic.navigation.Navigator.<init>(Navigator.java:62)
+	at de.tzi.traffic.navigation.StandardNavigator.<init>(StandardNavigator.java:42)
+	at de.tzi.traffic.navigation.NavigatorFactory.createNavigator(NavigatorFactory.java:49)
+	at de.tzi.traffic.TrafficManager.<init>(TrafficManager.java:110)
+	at de.tzi.traffic.TrafficManager.<init>(TrafficManager.java:136)
+	at de.tzi.traffic.TrafficManager.<init>(TrafficManager.java:75)
+	at de.tzi.Main.main(Main.java:66)
+```
+
+Simply increase the amount of memory available for Java Virtual Machine (`-Xmx512m -Xms512m`). You might also consider running simulations with a less demanding virtual city.
+
+##### Windows
+```bash
+java -Xmx512m -Xms512m -cp dist/JavaSim.jar;lib/log4j-1.2.15.jar de.tzi.Main
+```
+
+##### Unix/MacOS
+```bash
+java -Xmx512m -Xms512m -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar de.tzi.Main
+```
