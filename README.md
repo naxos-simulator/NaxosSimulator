@@ -7,8 +7,6 @@ The main purpose of the Naxos traffic simulator is to perform computations relat
 
  * [Quick start](#quick-start)
  * [Configuration](#configuration)
- * [Cities](#cities)
- * [Distributed computing](#distributed-computing)
  * [Troubleshooting](#troubleshooting)
  
 ## Quick start
@@ -136,12 +134,6 @@ java -cp .;dist/JavaSim.jar;lib/log4j-1.2.15.jar de.tzi.Main
 ```bash
 java -cp .:dist/JavaSim.jar:lib/log4j-1.2.15.jar de.tzi.Main
 ```
-
-
-## Cities
-
-## Distributed computing
-
 
 ## Troubleshooting
 
