@@ -14,7 +14,7 @@ The main purpose of the Naxos traffic simulator is to perform computations relat
 ## Quick start
 
 1. Prior to run make sure you have Java Runtime Environment installed. If you don't have it go to [Java Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
-2. Download the latest [build] (JavaSim)
+2. Download the latest [build] (Distribution)
 3. Extract files from the archive and execute run.bat or run.sh, depending on your operating system
 4. Press 't' key to start a simulation
 5. Have fun!
