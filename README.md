@@ -1,7 +1,7 @@
 # Naxos Simulator
 Cellular automata traffic simulator with integrated carbon dioxide emission model
 
-The main purpose of the Naxos traffic simulator is to perform computations related to vehicle movement according to predefined set of cellular automata rules. A built- in set of rules includes Rule-184, NaSch and also their extensions that incorporate CO<sub>2</sub>-emission model. The simulator is fully configurable, i.e. all parameters, such as vehicle density, percentage of transmitting vehicles, percentage of smart vehicles but also the layout of the virtual city, can be altered by the configuration file.
+The main purpose of the Naxos traffic simulator is to perform computations related to vehicle movement according to predefined set of cellular automata rules. A built-in set of rules includes Rule-184, NaSch and also their extensions that incorporate CO<sub>2</sub>-emission model. The simulator is fully configurable, i.e. all parameters, such as vehicle density, percentage of transmitting vehicles, percentage of smart vehicles but also the layout of the virtual city, can be altered by the configuration file.
 
 ![Naxos Traffic Simulator](https://raw.githubusercontent.com/naxos-simulator/NaxosSimulator/master/Media/Cities/GEN02-small.png)
 
@@ -91,16 +91,16 @@ The application settings are stored in the configuration file `simulation.proper
 
 | Key | Meaning |
 | --- | ------- |
-|data.files.directory | Name of the directory from which layout of the road net- work will be taken|
+|data.files.directory | Name of the directory from which layout of the road network will be taken|
 |persistence.file | Name of the file from which serialized objects that represent the road network is loaded. If it does not exist, then it is created, once input files are read. This is used to speed up the start of the simulation. |
 | data.files.crossings | The name of the file that contains information about crossings. |
 | data.files.segments | The name of the file that contains information about road segments. |
-| data.files.map.segments | The name of the file that contains geospatial infor- mation about road segments. |
+| data.files.map.segments | The name of the file that contains geospatial information about road segments. |
 | vehicle.density|  Parameter used to setup a test scenario that states the ratio of cells occupied by vehicles to all cells. |
 | vehicle.transmitting | Parameter that states what percentage of the vehicles are reporting their traveling times between crossings. |
-| vehicle.icensePlate.ratio | Parameter that states the probability that the ve- hicle identity will be properly recognized at a crossing. |
+| vehicle.icensePlate.ratio | Parameter that states the probability that the vehicle identity will be properly recognized at a crossing. |
 | vehicle.smart.r | The ratio of smart vehicles of type R, i.e. the vehicles that have access to dynamic route guidance system (DRGS) that provide up-to-date information about the quickest routes. The Smart-R vehicles are always choosing routes given by DRGS. |
-| vehicle.smart.s|  The ratio of smart vehicles of type S, i.e. the vehicles that addi- tionally have access to the information regarding expected time of changing traffic lights, so they could slow down a little bit before approaching the red light to eliminate the stop-and-go and smoothly accelerate, once the traffic light changes back to green. |
+| vehicle.smart.s|  The ratio of smart vehicles of type S, i.e. the vehicles that additionally have access to the information regarding expected time of changing traffic lights, so they could slow down a little bit before approaching the red light to eliminate the stop-and-go and smoothly accelerate, once the traffic light changes back to green. |
 | lights.sotl | Parameters d, r, e, u, m and threshold are specific for the Self-Organizing Traffic Lights algorithm. |
 | lights.random.min | Minimum cycle length for random length traffic light controllers. |
 | lights.random.max | Maximum cycle length for random length traffic light controllers. |
@@ -108,7 +108,7 @@ The application settings are stored in the configuration file `simulation.proper
 | lights.fixed.period | Fixed period cycle length. |
 | ltraffic.update.frequency | How often DRGS updates its internal map to be able to show the quickest route between any two crossings. |
 | traffic.segments.stddev |  The standard deviation of a vehicle’s density among segments. |
-| traffic.deadlock.wait | If the vehicle is not able to move in the desired direc- tion because of a deadlock that lasts for longer than the value specified in this parameter, or the vehicle is trying to move in any other direction that currently has the green light. If the value is set to zero, this feature is turned off. |
+| traffic.deadlock.wait | If the vehicle is not able to move in the desired direction because of a deadlock that lasts for longer than the value specified in this parameter, or the vehicle is trying to move in any other direction that currently has the green light. If the value is set to zero, this feature is turned off. |
 | window.size.width | The width of the simulation window. |
 | window.size.height | The height of the simulation window. |
 | window.cell.size | Cell size for display in the simulation window. |
@@ -120,7 +120,7 @@ The application settings are stored in the configuration file `simulation.proper
 | db.url | JDBC connection string to the database (used for GIS Creator). db.driver JDBC Driver class. |
 | db.user | Username encoded in Base64. |
 | db.pass | Password encoded in Base64. |
-| interactive.mode|  If true shows the Graphical User Interface, otherwise the sim- ulator is run in a batch mode.| 
+| interactive.mode|  If true shows the Graphical User Interface, otherwise the simulator is run in a batch mode.| 
 
 #### Overriding configuration file
 
