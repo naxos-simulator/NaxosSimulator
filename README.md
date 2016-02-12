@@ -3,6 +3,8 @@ Cellular automata traffic simulator with integrated carbon dioxide emission mode
 
 The main purpose of the Naxos traffic simulator is to perform computations related to vehicle movement according to predefined set of cellular automata rules. A built- in set of rules includes Rule-184, NaSch and also their extensions that incorporate CO<sub>2</sub>-emission model. The simulator is fully configurable, i.e. all parameters, such as vehicle density, percentage of transmitting vehicles, percentage of smart vehicles but also the layout of the virtual city, can be altered by the configuration file.
 
+![Naxos Traffic Simulator](https://raw.githubusercontent.com/naxos-simulator/NaxosSimulator/master/Media/Cities/GEN02-small.png)
+
 ### Table of Contents
 
  * [Quick start](#quick-start)
