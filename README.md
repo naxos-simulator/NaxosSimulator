@@ -116,7 +116,7 @@ The application settings are stored in the configuration file `simulation.proper
 | window.fps | Frames per second for continuous simulation mode. This mode is triggered by pressing ’t’ key during simulation. |
 | traffic.lights.type |  Traffic light type in the simulated city. Possible types are: FIXED for fixed period, RANDOM for random and SOTL for Self-Organizing Traffic Lights. |
 | traffic.strategy.type|  Cellular automata traffic model, possible values are: RULE184, NASCH, RULE184 CO2 and NASCH CO2. |
-| traffic.navigation.type | Specifies the type of navigation for the vehicles. Pos- sible values are: SIMPLE – the crossroads are the vertexes of a navigation graph and the road segments are the edges, STANDARD – the segments are the vertexes of a navigation graph, and the passing possibilities are the edges, BROWNIAN – the vehicle is traveling without any specific goal, its movement is determined by the pseudorandom variable. |
+| traffic.navigation.type | Specifies the type of navigation for the vehicles. Possible values are: SIMPLE – the crossroads are the vertexes of a navigation graph and the road segments are the edges, STANDARD – the segments are the vertexes of a navigation graph, and the passing possibilities are the edges, BROWNIAN –  vehicles are traveling without any specific goal, its movement is determined by the pseudorandom variable. |
 | db.url | JDBC connection string to the database (used for GIS Creator). db.driver JDBC Driver class. |
 | db.user | Username encoded in Base64. |
 | db.pass | Password encoded in Base64. |
