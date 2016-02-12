@@ -41,6 +41,10 @@ public class BrownianNavigator extends Navigator {
 		super(trafficManager, null, null, null);
 	}
 	
+	public int getPossibleDestinationCount() {
+		return trafficManager.getCrossingsCount();
+	}
+	
 	protected int randomTargetId(int src) {
 		return trafficManager.getRandom().nextInt(trafficManager.getCrossingsCount()) + 1;
 	}

@@ -42,6 +42,10 @@ public class StandardNavigator extends Navigator {
 		super(trafficManager);
 	}
 	
+	public int getPossibleDestinationCount() {
+		return trafficManager.getSegmentsCount();
+	}
+	
 	protected int randomTargetId(int src) {
 		return trafficManager.getRandom().nextInt(trafficManager.getSegmentsCount()) + 1;
 	}

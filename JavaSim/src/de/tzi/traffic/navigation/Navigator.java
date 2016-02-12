@@ -168,6 +168,8 @@ public abstract class Navigator {
 	
 	protected abstract boolean isVehicleTargetReachable(Segment source, int vehicleId);
 	
+	public abstract int getPossibleDestinationCount();
+	
 	public int removeVehiclesWithUreachableOrTheSameDestinations() {
 		int removed = 0;
 		for (Segment segment : trafficManager.getSegments()) {

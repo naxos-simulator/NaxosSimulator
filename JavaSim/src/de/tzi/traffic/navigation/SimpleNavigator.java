@@ -42,6 +42,10 @@ public class SimpleNavigator extends Navigator {
 		super(trafficManager);
 	}
 	
+	public int getPossibleDestinationCount() {
+		return trafficManager.getCrossingsCount();
+	}
+	
 	protected int randomTargetId(int src) {
 		//FIXME: MINIMAL DISTANCE > 2
 		//FIXME: NOT THE SAME VERTEX
