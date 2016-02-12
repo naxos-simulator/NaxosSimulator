@@ -30,6 +30,15 @@ The main purpose of the Naxos traffic simulator is to perform computations relat
 | 5 | Shows the display settings| 
 | q | Quits the application| 
 
+### Mouse
+
+| Action | Meaning |
+| --- | :------ |
+| Click+move | Moves a map |
+| Scroll | Zooms in/zooms out |
+| Shift+Scroll | Increase/decrease cell size |
+
+
 ### Command line
 
 To start simulation from command line, go to the the main directory where you exctractd the latest build and simply type:
