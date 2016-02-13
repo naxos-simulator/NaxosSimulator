@@ -86,12 +86,12 @@ public class Scenario {
 			Display.STOP_AT_TIME = Integer.parseInt(args[4]);
 		}
 
-		if (args.length > 5) {
-			Display.SHOW_BOTH = Display.ONE_TO_FOUR = Boolean.parseBoolean(args[5]);
-		}
+		//if (args.length > 5) {
+			//Display.SHOW_BOTH = Display.ONE_TO_FOUR = Boolean.parseBoolean(args[5]);
+		//}
 
 		int segmentStdDev = 0;
-		if (args.length > 6) {
+		if (args.length > 5) {
 			segmentStdDev = Integer.parseInt(args[6]);
 		}
 
