@@ -141,7 +141,7 @@ java -cp .:dist/JavaSim.jar:lib/log4j-1.2.15.jar de.tzi.Main
 
 #### java.lang.NoClassDefFoundError: de/tzi/Main
 
-It means that you probably trying to run the simulator in a wrong directory. You should be in the directory where  `dist`, `lib` and other subdirectories were extracted from the distribution archive.
+It means that probably you are trying to run the simulator in a wrong directory. You should be in the directory where  `dist`, `lib` and other subdirectories were extracted from the distribution archive.
 
 
 #### java.lang.OutOfMemoryError: Java heap space
