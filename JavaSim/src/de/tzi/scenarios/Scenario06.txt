@@ -1,59 +1,45 @@
-#See scenario 04 for CO2 emission per trip, so run it first to set up variables properly
+#Second city GEN16
+
+# CUT HERE - SMILIAR AS IN Scenario 04 and 05
 
 
 
-# CUT HERE - THE SAME AS IN Scenario 04
 
 
 
-
-
-#Run www.mapaswiatel.pl/tzi/X
-
-#----------- cut from here 
-
-#!/bin/bash
-#1 500
-for i in `seq 458 458`
-do
-	echo $i
-	curl -J -O http://mapaswiatel.pl/tzi/D/$i	
-done
-
-   
-#----------- up to here 
 
 
 #
 # Plots for rho = 0.25, smart = 0.05,...,0.95
 #
 #Circle
-map = "GEN13"
-version = "16"
+#map = "GEN13"
+#version = "16"
 
 
 #Manhattan uniform
-#map = "GEN16"
-#version = "13"
+map = "GEN16"
+version = "16"
 
 #
 # Probability x 2
 #map = "GEN16"
 #
 #version = "14"
+
 start = 1
 stop = 19
 
 #inputPrefix = "/Users/m/Downloads/Naxos/"
 
 inputPrefix = "/tmp/"
-outputPrefix = "/tmp/14"
+outputPrefix = "/tmp/A"
 maxSN = 0
 findMax = T
 scale = 1
 
 #
-#---------> CHANGE HERE: Scenario 05
+#---------> CHANGE HERE: Scenario 06
 #
 #
 # All
@@ -61,13 +47,6 @@ co2Idx = 13
 tripCnt = 15
 genPrefix = "A"
 
-#
-#---------> CHANGE HERE: Scenario 04 and 05 part 2
-#
-#1-4
-co2Idx = 21
-tripCnt = 23
-genPrefix = "2"
 
 overall=!TRUE
 
@@ -97,7 +76,7 @@ rS=array(dim=c(stop-start+1,rhoStop-rhoStart+1))
 
 fillCOnly = FALSE
 
-plotDist = !TRUE
+plotDist = TRUE
 
 
 require(fitdistrplus)
@@ -196,8 +175,10 @@ for (j in rhoStart:rhoStop) {
 		
 				Sdist = fitdist(S,"norm", method="mme") 
 				Smean = Sdist$estimate[1]
+				Ssd = Sdist$estimate[2]
 				Ndist = fitdist(N,"norm", method="mme")
 				Nmean = Ndist$estimate[1]
+				Nsd = Ndist$estimate[2]
 				
 				pdf(file = paste(outputPrefix, "Naxos-Sim-M-",map,"-rho_", rho, "-ver_",version, "-smart_",smart,"-N.pdf", sep=""))
 				plot(Ndist);
@@ -208,7 +189,7 @@ for (j in rhoStart:rhoStop) {
 				plot(Sdist);
 				dev.off()
 				
-				message(paste("N_mean:",Nmean, "S_mean:",Smean))
+				message(paste("N_mean:",Nmean, "S_mean:",Smean, "N_sd:", Nsd, "S_sd:", Ssd))
 		}
 		}
 		
@@ -251,6 +232,164 @@ for (j in rhoStart:rhoStop) {
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+#Emission plot
+
+noAverage = TRUE
+noStart = noStop = 1
+start = 1
+stop = 19
+rhoStart = 1
+rhoStop = 19
+
+start = stop = 10
+rhoStart = rhoStop = 5
+
+for (j in rhoStart:rhoStop) {
+for (i in start:stop) {
+		rho = formatC(j * 5, width=3, format="d", flag="0")
+		smart = formatC(i * 5, width=3, format="d", flag="0")
+		S = c()
+		N1 = c()
+		M = c()
+		for (no in noStart:noStop) {
+			f = paste(inputPrefix, "Naxos-Sim-",map,"-rho_", rho, "-smart_",smart,"-ver_",version,"-no_",no,".txt", sep="")
+			message(f)
+			if (file.exists(f)) {
+				source(f)
+	
+				for (k in 1:length(tdcrNmS_CO2R[1,])) {
+					v = (tdcrNmS_CO2R[co2Idx,k] * tdcrNmS_CO2R[tripCnt,k] *
+						tdcrNmS_CO2R[co2Idx+1,k] * tdcrNmS_CO2R[tripCnt+1,k]);
+						
+					if (is.na(v) || v == 0) {
+						message(k)
+						tdcrNmS_CO2R[,k] = NA
+					}
+				}
+				
+				S = sort(c(S,sort(tdcrNmS_CO2R[co2Idx + 1,]/tdcrNmS_CO2R[tripCnt + 1,])/1000))
+				N1 = sort(c(N1,sort(tdcrNmS_CO2R[co2Idx,]/tdcrNmS_CO2R[tripCnt,])/1000))
+				#maxSN = max(maxSN, max(M, max(N1, S)))
+				maxSN = max(N1, S)
+				minSN = min(N1, S)
+				
+				a1 = (tdcrNmS_CO2R[co2Idx,]+tdcrNmS_CO2R[co2Idx + 1,])/1000
+				a2 = (tdcrNmS_CO2R[tripCnt,]+tdcrNmS_CO2R[tripCnt + 1,])
+				
+				M = sort(c(M, a1/a2)) 
+				
+				par(mfrow=c(1,1));
+			} else {
+				message("NOT EXISTS!")
+			}
+		}
+		
+		if (plotDist) {
+		
+		Sdist = fitdist(S,"norm", method="mme") 
+		Smean = Sdist$estimate[1]
+		Ndist = fitdist(N1,"norm", method="mme")
+		Nmean = Ndist$estimate[1]
+		
+		
+		
+				Sdist = fitdist(S,"norm", method="mme") 
+				Smean = Sdist$estimate[1]
+				Ssd = Sdist$estimate[2]
+				Ndist = fitdist(N1,"norm", method="mme")
+				Nmean = Ndist$estimate[1]
+				Nsd = Ndist$estimate[2]
+				
+				
+		
+		
+		
+		pdf(file = paste(outputPrefix, "Naxos-Sim-M-",map,"-rho_", rho, "-ver_",version, "-smart_",smart,"-N.pdf", sep=""))
+		plot(Ndist);
+		dev.off()
+		
+		
+		pdf(file = paste(outputPrefix, "Naxos-Sim-M-",map,"-rho_", rho, "-ver_",version, "-smart_",smart,"-S.pdf", sep=""))
+		plot(Sdist);
+		dev.off()
+		
+				message(paste("N_mean:",Nmean, "S_mean:",Smean, "N_sd:", Nsd, "S_sd:", Ssd))
+		}
+		
+		pdf(file = paste(outputPrefix, "Naxos-Sim-M-",map,"-rho_", rho, "-ver_",version, "-smart_",smart,".pdf", sep=""))#, width=1400*scale, height=1400*scale, pointsize=30*scale)
+		
+			cex = 1
+			gType = "l"
+			clS = rgb(1,0,0)
+			clSL = clS
+			ltS=3
+			
+			clN = rgb(0,0,1)
+			clNL = clN
+			ltN=2
+	
+			clM = rgb(0.25,0.25,.25)
+			clML = clM
+			ltM=1
+			pch=1
+			
+			smart1 = i * 5 / 100
+			rho1 =  j * 5 / 100
+			main = bquote(list(rho==.(rho1),theta==.(smart1)))
+			main = bquote(list(theta==.(smart1),rho==.(rho1)))
+			
+			plot(N1, main=main, type=gType, col=clN, cex=cex, pch=pch, 
+				lty=ltN, 
+				ylim=c(minSN,maxSN), 
+				ylab=expression(paste(CO[2], " emission per trip [g]")))
+			title(list(main, font=1))
+				
+			lines(S, type=gType, col=clS, cex=cex, pch=pch, lty=ltS)
+			if (!noAverage) {
+				lines(M, type=gType, col=clM, cex=cex, pch=pch, lty=ltM)
+				#0.63 0.14
+				legend(length(S)*0, maxSN * 1, 
+				c(
+				"Average emission",
+				"Normal vehicles",
+				"Smart vehicles"
+				), 
+				lty=c(ltM, ltN,ltS),
+				col=c(clML, clNL,clSL))
+			
+			} else {
+				#0.63 0.14
+				legend(length(S)*0, maxSN * 1, 
+				c(
+				"Normal vehicles",
+				"Smart vehicles"
+				), 
+				lty=c(ltN,ltS),
+				col=c(clNL,clSL))
+			}
+			
+			dev.off()
+}
+
+}
+
+
+
+
+
+
 
 
 

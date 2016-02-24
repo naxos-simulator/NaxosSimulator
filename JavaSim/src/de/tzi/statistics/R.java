@@ -274,7 +274,7 @@ public class R {
 		}
 	}
 	
-	public static String HEADER = "trial, tns, dns, cns, rns, tnsR, dnsR, cnsR, rnsR, "+
+	public static String HEADER = "#trial, tns, dns, cns, rns, tnsR, dnsR, cnsR, rnsR, "+
 		"totalCompared, normalCount, smartCount, removedVehiclesCount, "+
 		"totalCO2N, totalCO2S, "+
 		"totalTripsN ,totalTripsS, "+

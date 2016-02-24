@@ -51,10 +51,10 @@ scale = 0.8
 cex = 0.1
 scale = 1
 
-cex = 0.3
+cex = 0.1
 scale = 0.8
 
-cl = rgb(0,0,0,0.01)
+cl = rgb(0,0,0,0.1)
 ltS = ltN = 1
 clS = clN = cl
 
@@ -70,7 +70,6 @@ par(mgp = c(2.5, 1, 0))
 
 start = 1
 stop = 200
-
 
 max_c = 5230851
 max_t = 190265.2188
@@ -116,7 +115,7 @@ timeResolution = 21
 par(mgp = c(2.5, 1, 0))
 
 
-pch=18
+pch=19
 
 
 

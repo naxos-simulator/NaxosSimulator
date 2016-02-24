@@ -38,6 +38,7 @@ import de.tzi.graphics.Display;
 import de.tzi.graphics.Renderer;
 import de.tzi.graphics.WorldMap;
 import de.tzi.io.Loader;
+import de.tzi.statistics.R;
 import de.tzi.traffic.TrafficManager;
 import de.tzi.traffic.lights.LightControllerFactory;
 import de.tzi.traffic.navigation.NavigatorFactory;
@@ -92,7 +93,7 @@ public class Scenario {
 
 		int segmentStdDev = 0;
 		if (args.length > 5) {
-			segmentStdDev = Integer.parseInt(args[6]);
+			segmentStdDev = Integer.parseInt(args[5]);
 		}
 
 
@@ -134,10 +135,13 @@ public class Scenario {
 				} 
 				if (Display.SHOW_BOTH || !Display.COMPLETE_STATISTICS) {
 					System.out.println("tdcrNmS_CO2R <- matrix(ncol=" + MAX_TRIALS + ", nrow=39)");
+					System.out.println(R.HEADER + (Display.ONE_TO_FOUR ? " [1-4] " : " ALL DIRS ")+" [max speed in cells: "+NaSchCO2.getMaxSpeedInCells()+"]");
+					/*
 					System.out.println("#tdcrNmS_CO2R: Time: normal - smart, Distance: ns, CO2: ns, Trips completed: ns, Time: normal - smart, "+
 							"Distance: sn, CO2 sn, Trips completed: sn, Total comparisons, Smart count, "+
 							"Normal count, number of vehicles removed, Total CO2 for N, Total CO2 for S, total trips N, total trips S, total time N, total time S, total distance N, total distance S, Results for 14, Normal 14 count, Smart 14 count"+
 							(Display.ONE_TO_FOUR ? " [1-4] " : " ALL DIRS ")+" [max speed in cells: "+NaSchCO2.getMaxSpeedInCells()+"]");
+					*/
 				}
 				System.out.format("#Simulation parameters: rho = %.4f, smart vehicle ratio = %.4f, cells: %d, vehicles: %d (first trial), map: %s, trials: %d, time: %d, sgmStdDev: %d\n", rho, ratio,
 					world.getTotalNetworkLength(),

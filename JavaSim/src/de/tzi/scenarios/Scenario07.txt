@@ -1,0 +1,116 @@
+#Run Scenario06 first to set up variables
+
+
+#
+# Difference
+#
+
+require(lattice)
+require(grid)
+require(latticeExtra)
+xStep = 2
+yStep = 2
+
+
+pdf(file = paste("/tmp/",genPrefix,"_14Naxos-Sim-",map,"-ver_",version,"-C_N-S.pdf",sep=""), paper="special", width=7, height=7)#, pointsize=30)
+
+s=cN-cS
+s=pmax(s,0,na.rm=T)
+s[s == 0] <- NA
+
+title=expression(paste(plain("The difference in "), CO[2], plain(" emission per trip of normal and smart vehicles")))
+
+library(grid)
+
+#theseCol2=heat.colors(max(abs(s),na.rm=TRUE))
+#theseCol2=c(theseCol,rev(theseCol))
+
+wireframe(s, scales =
+        list(arrows=FALSE, cex= 0.45, col = "black", font = 3, tck = 1,
+        #x=list(labels=c("A","B")),#labels=as.character((start:stop)*0.05)),
+        x=list(at=seq(start,stop,xStep), tck=1,labels=paste(formatC(seq(start,stop,xStep)*5, format="d"), "%", sep="")),
+        y=list(at=seq(rhoStart,rhoStop,yStep), tck=1,labels=paste(formatC(seq(rhoStart,rhoStop,yStep)*5, format="d"), "%", sep=""))),
+        xlim = start:stop,
+        screen = list(z = 40, x = -65),
+        #screen = list(z = 0, x = -0),
+        colorkey = FALSE,
+        xlab = expression(paste(theta)),
+        ylab = expression(paste(rho)),#
+        zlab = list(label = expression(paste(CO[2], plain(" [g]"))), font = 3, cex = 0.8, las=3),
+        shade=TRUE,
+        pretty=TRUE,
+        drape=TRUE,
+        light.source= c(0, 10, 10),
+        #line=2,
+        #zlim = 0:maxSN,
+        zlim=0:max(abs(cN-cS),abs(cS-cN),na.rm=TRUE),
+        #main = title,
+        shade.colors = function(irr, ref,height, w = 0.4) grey(w*irr+(1-w)*(1 - (1 - ref)^0.4)),
+		aspect = c(1, 0.65),
+		#col.regions=theseCol2,
+		panel = function(...)
+		    {
+		      panel.wireframe(...)
+		      grid.text(title, 0, 0.14, default.units = "native"
+		      #, gp = gpar(fontsize = 13)
+		      )
+		    }
+		)
+		
+dev.off()
+
+
+
+
+
+pdf(file = paste("/tmp/",genPrefix,"_14Naxos-Sim-",map,"-ver_",version,"-C_S-N.pdf",sep=""), paper="special", width=7, height=7)#, pointsize=30)
+
+s=cS-cN
+s=pmax(s,0,na.rm=T)
+s[s == 0] <- NA
+
+title=expression(paste(plain("The difference in "), CO[2], plain(" emission per trip of smart and normal vehicles")))
+
+library(grid)
+
+#theseCol2=heat.colors(max(abs(s),na.rm=TRUE))
+#theseCol2=c(theseCol,rev(theseCol))
+
+wireframe(s, scales =
+        list(arrows=FALSE, cex= 0.45, col = "black", font = 3, tck = 1,
+        #x=list(labels=c("A","B")),#labels=as.character((start:stop)*0.05)),
+        x=list(at=seq(start,stop,xStep), tck=1,labels=paste(formatC(seq(start,stop,xStep)*5, format="d"), "%", sep="")),
+        y=list(at=seq(rhoStart,rhoStop,yStep), tck=1,labels=paste(formatC(seq(rhoStart,rhoStop,yStep)*5, format="d"), "%", sep=""))),
+        xlim = start:stop,
+        screen = list(z = 40, x = -65),
+        #screen = list(z = 0, x = -0),
+        colorkey = FALSE,
+        xlab = expression(paste(theta)),
+        ylab = expression(paste(rho)),#
+        zlab = list(label = expression(paste(CO[2], plain(" [g]"))), font = 3, cex = 0.8, las=3),
+        shade=TRUE,
+        pretty=TRUE,
+        drape=TRUE,
+        light.source= c(0, 10, 10),
+        #line=2,
+        #zlim = 0:maxSN,
+        zlim=0:max(abs(cN-cS),abs(cS-cN),na.rm=TRUE),
+        #main = title,
+        shade.colors = function(irr, ref,height, w = 0.4) grey(w*irr+(1-w)*(1 - (1 - ref)^0.4)),
+		aspect = c(1, 0.65),
+		#col.regions=theseCol2,
+		panel = function(...)
+		    {
+		      panel.wireframe(...)
+		      grid.text(title, 0, 0.14, default.units = "native"
+		      #, gp = gpar(fontsize = 13)
+		      )
+		    }
+		)
+		
+dev.off()
+
+
+
+
+
