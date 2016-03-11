@@ -16,7 +16,7 @@ The main purpose of the Naxos traffic simulator is to perform computations relat
 1. Prior to run make sure you have Java Runtime Environment installed. If you don't have it go to [Java Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
 2. Download the latest [build] (Distribution)
 3. Extract files from the archive and execute run.bat or run.sh, depending on your operating system
-4. Press 't' key to start a simulation
+4. Press 'l' key to start a simulation
 5. Have fun!
 
 ### Key bindings
@@ -24,7 +24,7 @@ The main purpose of the Naxos traffic simulator is to perform computations relat
 | Key | Meaning |
 | --- | :------ |
 | t | Runs / pauses the simulation | 
-| r | Performs a single computational simulation step and updates statistics l Runs the simulation for 25000 computational time steps | 
+| l | Runs a single simulation | 
 | 2 | Triggers the change of all the traffic lights within the city| 
 | 4 | Shows all the properties of the simulated elements| 
 | 5 | Shows the display settings| 
@@ -74,14 +74,12 @@ Sample scenario is defined in `de.tzi.scenarios.Scenario` class. Input parameter
 
 ##### Windows
 ```bash
-java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar;lib/log4j-1.2.15.jar \
-de.tzi.scenarios.Scenario 0.25 0.1 15 GEN02 1000000
+java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar;lib/log4j-1.2.15.jar de.tzi.scenarios.Scenario 0.25 0.1 15 GEN05 10000
 ```
 
 ##### Unix/MacOS
 ```bash
-java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar \
-de.tzi.scenarios.Scenario 0.25 0.1 15 GEN02 1000000
+java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar de.tzi.scenarios.Scenario 0.25 0.1 15 GEN05 10000
 ```
 
 
