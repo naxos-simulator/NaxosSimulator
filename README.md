@@ -74,12 +74,14 @@ Sample scenario is defined in `de.tzi.scenarios.Scenario` class. Input parameter
 
 ##### Windows
 ```bash
-java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar;lib/log4j-1.2.15.jar de.tzi.scenarios.Scenario 0.25 0.1 15 GEN05 10000
+java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar;lib/log4j-1.2.15.jar \
+de.tzi.scenarios.Scenario 0.25 0.1 15 GEN05 10000
 ```
 
 ##### Unix/MacOS
 ```bash
-java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar de.tzi.scenarios.Scenario 0.25 0.1 15 GEN05 10000
+java -Duser.country=US -Duser.language=en -cp dist/JavaSim.jar:lib/log4j-1.2.15.jar \
+de.tzi.scenarios.Scenario 0.25 0.1 15 GEN05 10000
 ```
 
 
